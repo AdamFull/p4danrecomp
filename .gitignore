@@ -1,0 +1,55 @@
+# --- The user's game files and everything derived from them: never commit ---
+# game/: original packages (base game, update, DLC). keys/: licenses and keys the user supplies.
+# generated/: extracted and decrypted files, reports, recompiled sources, translated shaders, cooked media.
+# run/: the working directory for running the game (settings, saves, pipeline cache, recordings).
+/game/
+/keys/
+/generated/
+/run/
+*.pkg
+*.rif
+*.zrif
+work.bin
+*.self
+*.suprx
+*.skprx
+eboot.bin
+EBOOT.BIN
+param.sfo
+PARAM.SFO
+*.gxp
+*.gxt
+*.at9
+*.psarc
+*.PUP
+
+# --- PS Vita SDK files and test material built with the SDK: local only ---
+/sdk/
+/local/
+
+# --- Build output ---
+/build/
+/out/
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.exe
+*.pdb
+*.apk
+*.aab
+
+# --- Tooling / editors ---
+__pycache__/
+*.pyc
+.venv/
+.vs/
+.vscode/
+.idea/
+*.user
+*.gpr
+*.rep/
+.DS_Store
+Thumbs.db

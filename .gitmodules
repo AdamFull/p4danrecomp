@@ -1,0 +1,3 @@
+[submodule "psvrecore"]
+	path = psvrecore
+	url = https://github.com/AdamFull/psvrecore
