@@ -53,20 +53,19 @@ version is the update's executable (`src/main.cpp`: EU 01.01); the base game's a
 ## Imports
 
 The update's executable imports 384 symbols from 34 libraries, every one named by vita-headers' database. With the
-modules' imports, 639 imported symbols in all: 345 are implemented by psvrecore, 204 are exported by the game's own
-modules (recompiled with it: libc's SceLibc, SceLibm and SceLibstdcxx; libfios2's SceFios2), and **90 are missing**
+modules' imports, 639 imported symbols in all: 409 are implemented by psvrecore, 204 are exported by the game's own
+modules (recompiled with it: libc's SceLibc, SceLibm and SceLibstdcxx; libfios2's SceFios2), and **26 are missing**
 (a call to one stops the program until it is implemented). `scripts/import_coverage.py` writes the full table to
-`generated/report/coverage.tsv` (local).
+`generated/report/coverage.tsv` (local). At first (M7) 90 were missing; M8 implemented PSN offline, the system
+dialogs, fibers, the H.264 decoder, kernel timers and the network's start, as the boot reached them.
 
 | Missing | Library | Functions |
 | --- | --- | --- |
-| 24 | SceNpManager, SceNpScore, SceNpTrophy, SceNpActivity | PSN sign-in, online rankings, trophies, activity posts |
-| 18 | SceCommonDialog | the save data, message, network check and trophy setup dialogs |
-| 13 | SceFiber (executable and libult) | fibers: init, run, switch, return to the thread |
-| 9 | SceVideodecUser | the H.264 decoder (`sceAvcdec*`), CRI Mana's movies |
-| 5 | SceLibKernel, SceThreadmgr | kernel timers (`sceKernel*Timer*`) |
-| 4 | SceNet, SceNetCtl, SceHttp, SceSsl | network initialization |
-| 17 | others | app state and system events, store browse, `sceDisplayWaitSetFrameBufMulti`, game update check, power mode, libc's `sceKernelLibcMktime` and module info, FIOS2's recommended scheduler, libult's profiler and object manager hooks |
+| 10 | SceNpScore | online rankings and their game data (the game offline never reaches them) |
+| 3 | SceGameUpdate | the game update check |
+| 1 | SceAppUtil | `sceAppUtilStoreBrowse` (the PlayStation Store) |
+| 4 | libc's and libfios2's imports | `sceKernelGetModuleInfoByAddr`, `sceKernelLibcMktime`, SceLibcParam; FIOS2's recommended scheduler (not called so far) |
+| 8 | libult's imports | fiber internals, the profiler and object manager hooks (the game does not load libult) |
 
 Everything the game draws and plays with is implemented: all 97 SceGxm functions, the 34 SceNgs functions, audio
 output, controls, touch, files, threads and synchronization, memory blocks and the application utility's save data.
@@ -232,6 +231,6 @@ with format tag 0xFFFE and the ATRAC9 subformat, 2 channels at 48 kHz. There are
 
 - Where the rhythm timing comes from (audio position, a clock, or frame counts). The source files named in the
   executable point at `danceMusic.c`, `danceTimeAdjuster.c` and `appTimer.c`; the code is to be read in M9.
-- The 90 missing imports (above), to be implemented or answered as the console does offline as the game reaches
-  them (M8).
+- The 26 missing imports (above), to be implemented or answered as the console does offline if the game reaches
+  them.
 - The inferred meanings of the data formats (the engine's code will confirm them).
