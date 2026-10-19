@@ -27,7 +27,7 @@ document covers what the game repository adds on top of it.
 | | |
 | --- | --- |
 | Title ID | PCSB00867 (Europe, EP1063) |
-| Supplied versions | Base game package; update package A0101 (application version 01.01); 12 add-on packages (6 content, 6 unlock-only) |
-| Executable hash | Unknown until the packages are decrypted (milestone M7) |
-| Engine | Unknown. PhyreEngine is a candidate but has not been verified |
+| Supplied versions | Base game (application 01.00); update (01.01: executable, 3 modules, `patch.cpk`); 12 add-ons (6 songs, 6 costumes holding only a marker). See [GAME_REPORT.md](GAME_REPORT.md) |
+| Executable hash | Unknown: the supplied executables are encrypted SELFs (milestone M7) |
+| Engine | Atlus's own, inferred from the data (`GFDPSP2.GSC`, GMD/GAP/GFS models and animation); CRI File System, ADX2 and Sofdec. Not yet confirmed in the code |
 | Rhythm timing source | Unknown; must be found in the game code before the clock design is finalized |
