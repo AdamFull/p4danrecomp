@@ -13,6 +13,14 @@
 #include "core/foundation/core/sha256.h"
 #include "core/foundation/strings/format.h"
 
+#if P4D_HAVE_CODE
+extern "C" {
+extern const PsvModuleCode p4d_eboot_module;
+extern const PsvModuleCode p4d_libc_module;
+extern const PsvModuleCode p4d_libfios2_module;
+}
+#endif
+
 namespace {
 
 using namespace psvrecore;
@@ -29,8 +37,16 @@ constexpr Version kVersionList[] = {
 };
 constexpr std::span<const Version> kVersions{kVersionList};
 
-// The recompiled modules (none yet).
+// The recompiled modules (scripts/generate_code.py: the executable and the modules it imports from), and the modules
+// started before the main thread, as the system starts the ones it imports from.
+#if P4D_HAVE_CODE
+const PsvModuleCode* const kCodeList[] = {&p4d_eboot_module, &p4d_libc_module, &p4d_libfios2_module};
+constexpr std::span<const PsvModuleCode* const> kCode{kCodeList};
+#else
 constexpr std::span<const PsvModuleCode* const> kCode{};
+#endif
+const char* const kModuleList[] = {"app0:sce_module/libc.suprx", "app0:sce_module/libfios2.suprx"};
+constexpr std::span<const char* const> kModules{kModuleList};
 
 nx::string hex(std::span<const u8> bytes) {
     nx::string s;
@@ -58,6 +74,7 @@ int main(int argc, char** argv) {
     game.title = "Persona 4: Dancing All Night";
     game.title_id = "PCSB00867";
     game.code = kCode;
+    game.modules = kModules;
     game.check = check_version;
     return frontend::run(game, argc, argv);
 }

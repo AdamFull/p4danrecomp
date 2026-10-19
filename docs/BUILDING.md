@@ -23,10 +23,25 @@ ctest --preset linux-x64-release
 Put your own copy of the game's folders from the console under `game/`, one folder for the game holding `app/`,
 `patch/` and `addcont/` as they are under `ux0:` (each with a `PCSB00867` folder): the game, the update (01.01) and
 the add-ons. `game/` is git-ignored and never modified. The game's data is read as it is; its executable and modules
-must be plaintext ELFs for the recompiler, which these copies are not yet (see KNOWN_ISSUES).
+must be plaintext ELFs (`psvinfo info` says "container ELF").
 
-The pipeline that extracts, recompiles and translates these files into `generated/` does not exist yet; see
-[ROADMAP.md](ROADMAP.md).
+## Recompiling the game
+
+Build once (for psvrecomp), recompile the game's executable and modules into `generated/code` (git-ignored: it is the
+game's code), and build again: the build then compiles that code into the program.
+
+```
+scriptsuild.ps1 -Preset windows-x64-release -NoTest
+python scripts/generate_code.py --game "game\<the game's folder>"
+scriptsuild.ps1 -Preset windows-x64-release -NoTest -Target p4danrecomp
+```
+
+The generated C is large (about 120 MB for the executable): compiling it takes a while and a few GB of memory per
+compiler. On a machine with little memory, limit the jobs (`$env:CMAKE_BUILD_PARALLEL_LEVEL = 3`).
+
+`scripts/import_coverage.py` compares the game's imports with what psvrecore implements (after `psvinfo imports` and
+`exports` have written their tables to `generated/report`, as GAME_REPORT.md describes); `scripts/guest_read.py`
+reads the executable at guest addresses (strings, words), for following a crash.
 
 ## Running
 
@@ -46,6 +61,7 @@ python scripts/android_apk.py --install
 The first start asks for the game's application folder (the system's folder picker) and copies it into the app's
 folder ([Android applications](../psvrecore/docs/BUILDING.md#android-applications)).
 
-Until the game's code is generated (M7), it refuses every executable: no version is supported yet. `run/` is
+Without generated code, or with an executable other than the update 01.01's plaintext ELF, it refuses to start.
+`run/` is
 git-ignored, for a settings file (`--settings run/settings.ini`) and data (`--data run/data`) kept with the
 checkout.
