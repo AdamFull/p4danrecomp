@@ -6,4 +6,5 @@
   libfios2's and libult's: [GAME_REPORT.md](GAME_REPORT.md)); none is called on the way to the menus. A call to one
   stops the program.
 - **Unknown until the code is read:** where the rhythm timing comes from.
-- **Linux has not been built.** It is covered only by psvrecore's CI, which runs once the repositories are pushed.
+- **The game has not been built for Linux.** psvrecore builds and passes its tests on Linux in CI; the game's own
+  build and a run there need a Linux machine.
