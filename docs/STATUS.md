@@ -9,5 +9,6 @@ The toolkit's state is in [psvrecore/docs/STATUS.md](../psvrecore/docs/STATUS.md
 | --- | --- | --- |
 | Repository, psvrecore submodule, presets, build script | Tested (Windows) | The Windows build compiles psvrecore and runs its tests |
 | Game decryption and extraction (M7) | Not started | Blocked: no license for the packages yet (see KNOWN_ISSUES) |
+| Program entry (`src/main.cpp`, psvrecore's frontend) | Builds successfully (Windows, Android arm64) | The game described for the frontend: title, title ID, its code (none yet), and the version check: `eboot.bin`'s SHA-256 must be listed, and no version is listed until M7, so every executable is refused (checked with a stand-in file; the hash agrees with Python's). Settings, command line and window are the frontend's |
 | Game configuration, overrides, patches | Not started | |
 | Android application | Not started | |

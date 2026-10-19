@@ -28,4 +28,17 @@ Put your own packages under `game/`, keeping the folders as they are:
 Licenses and keys go in `keys/`. Both folders are git-ignored and are never modified.
 
 The pipeline that extracts, recompiles and translates these files into `generated/` does not exist yet; see
-[ROADMAP.md](ROADMAP.md). Today the build compiles and tests psvrecore only.
+[ROADMAP.md](ROADMAP.md).
+
+## Running
+
+The build makes `p4danrecomp` (`libmain.so` on Android), psvrecore's frontend with the game's code
+([running a game](../psvrecore/docs/BUILDING.md#running-a-game-the-frontend)):
+
+```
+build\windows-x64-release\p4danrecomp --game <the extracted game's application folder>
+```
+
+Until the game's code is generated (M7), it refuses every executable: no version is supported yet. `run/` is
+git-ignored, for a settings file (`--settings run/settings.ini`) and data (`--data run/data`) kept with the
+checkout.

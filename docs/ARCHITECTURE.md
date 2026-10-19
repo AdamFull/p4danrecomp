@@ -17,7 +17,7 @@ document covers what the game repository adds on top of it.
 | Part | Role |
 | --- | --- |
 | `config/` | Supported version hashes; analysis hints (function seeds, known jump tables); the list of allowed stubs with the reason for each |
-| `src/` | Program entry and game description (title, mounts, version check), function overrides, game hooks |
+| `src/` | Program entry and game description for psvrecore's frontend (`main.cpp`: title, title ID, code, version check), function overrides, game hooks |
 | `patches/` | Patch sets, one per supported executable hash |
 | `tests/` | Smoke tests and input replays covering startup, menus, entering gameplay, a full song, saving |
 | `android/` | The Android application project (on-screen controls, file import, lifecycle) |
