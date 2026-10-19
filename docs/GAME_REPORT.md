@@ -1,20 +1,17 @@
 # Game technical report (M7)
 
-What the game's files show about Persona 4: Dancing All Night (PCSB00867, Europe). It covers only what the readable
-files allow: the SFO files, the folder layout of the base game, the update and the add-ons, and the CPK archives
-(read with `psvinfo cpk`). Nothing here comes from the game's code.
-
-**Not covered yet:** the executable and its five modules are still encrypted (`psvinfo info` reports an encrypted
-SELF for each). The imported system functions (NIDs), the engine's own code, the timing source of the rhythm game,
-and the supported executable's hash all need the plaintext ELFs, which psvrecore cannot produce from these files.
+What the game's files show about Persona 4: Dancing All Night (PCSB00867, Europe): the SFO files, the folder layout
+of the base game, the update and the add-ons, the CPK archives (read with `psvinfo cpk`), and the executable and
+modules as plaintext ELFs (read with `psvinfo`, imports compared with psvrecore by `scripts/import_coverage.py`).
+The game's code itself has not been analysed yet beyond that: where its rhythm timing comes from is still open.
 
 Facts measured from the files are stated plainly. What is only suggested by names or signatures is marked
 **inferred**.
 
 ## The files examined
 
-A copy of the memory card's `ux0:` folders for the title, made on the console. The data is in readable form; the
-executables are encrypted SELFs.
+A copy of the memory card's `ux0:` folders for the title, made on the console, with the data in readable form and
+the executables and modules as plaintext ELFs (each original SELF kept beside them in `.rom-browser-self-originals/`).
 
 | Folder | Holds |
 | --- | --- |
@@ -25,8 +22,8 @@ executables are encrypted SELFs.
 Each `sce_sys/` also holds the console's license and package files (`package/`, `clearsign`, `keystone`). They
 were not opened and are not described here.
 
-SHA-256 of the files as supplied (encrypted SELFs). They identify the copy this report describes. They are not the
-hashes the version check will use, which are those of the plaintext executable:
+SHA-256 of the encrypted SELFs of the first copy (they identify the packages; the version check uses the plaintext
+executable's, below):
 
 | File | SHA-256 |
 | --- | --- |
@@ -34,6 +31,45 @@ hashes the version check will use, which are those of the plaintext executable:
 | `patch/.../eboot.bin` (2 750 592 bytes) | `2cd7e0394ab2871c5f40445bca53880ff40db80f19835b823bed689f24f0e282` |
 | `app/.../sce_sys/param.sfo` | `054e985aebb57474ae0c8ed99bd64cbe1bc9796dbeca68c78a320be3019bcc57` |
 | `patch/.../sce_sys/param.sfo` | `92fa760a3604b5c8869d35d9cbecc3a0d6c742a8b5919a85f47f80fffcc54560` |
+
+## The executables
+
+Plaintext ELFs of type `0xFE04` (relocatable SCE executables), ARM, both loadable segments as linked. In each, every
+SCE relocation agrees with the linked contents (`psvinfo info`): the files are whole.
+
+| File | Module | Size | Code / data (memory) | Imports | SHA-256 |
+| --- | --- | --- | --- | --- | --- |
+| `patch/.../eboot.bin` (runs) | `xrd722_psp2_master` 1.1 | 4.9 MB | 0x27E694 / 0x2F72B0 at 0x81000000 | 34 libraries, 384 | `aa6e1260561393262695063edb4b8bdf9095aa727d248a7f3d9b83851f4d2261` |
+| `app/.../eboot.bin` (01.00) | `xrd722_psp2_master` 1.1 | 4.8 MB | 0x2761B0 / 0x2F5CD0 | 33 libraries, 380 | `2c7f2ec56c194abd6d3c2dcddb7b77ef2d00db0480cddee073aafdb307fa05c1` |
+| `sce_module/libc.suprx` | `SceLibc` | 0.4 MB | 0x4FC54 / 0x2688 | 8 libraries, 59 | `99268287be0397b10cefa9c20f858a038dea854a2a1510f85300250a84690426` |
+| `sce_module/libfios2.suprx` | `SceLibFios2` | 0.2 MB | 0x2B33C / 0x523D | 8 libraries, 68 | `fc5345de712e7d1647175af7d6a06c120b01b93f043b78845d250bf92f089cac` |
+| `sce_module/libult.suprx` | `SceUlt` | 0.1 MB | 0x139A4 / 0x814 | 7 libraries, 28 | `2eb501154ec884b25cdee42afcc79da27b99f7427bd207c78d1724f24f48d3f1` |
+| `sce_module/libface.suprx` | `SceFace` | 0.1 MB | 0x18CF4 / 0xF8 | 4 libraries, 27 | `584ec99de76093850b8bb61dcbfda2e8ed013df9631a27861933ba5270374087` |
+| `sce_module/libsmart.suprx` | `SceSmart` | 2.3 MB | 0x211AF4 / 0x3444 | 4 libraries, 73 | `30f726a0d0c74c9fcb616ed08e4d31870c52cf2b2341a813ccc537a9c39f105a` |
+
+The update's three modules are byte-identical to the base game's as plaintext (their SELFs differed). The supported
+version is the update's executable (`src/main.cpp`: EU 01.01); the base game's alone is refused.
+
+## Imports
+
+The update's executable imports 384 symbols from 34 libraries, every one named by vita-headers' database. With the
+modules' imports, 639 imported symbols in all: 345 are implemented by psvrecore, 204 are exported by the game's own
+modules (recompiled with it: libc's SceLibc, SceLibm and SceLibstdcxx; libfios2's SceFios2), and **90 are missing**
+(a call to one stops the program until it is implemented). `scripts/import_coverage.py` writes the full table to
+`generated/report/coverage.tsv` (local).
+
+| Missing | Library | Functions |
+| --- | --- | --- |
+| 24 | SceNpManager, SceNpScore, SceNpTrophy, SceNpActivity | PSN sign-in, online rankings, trophies, activity posts |
+| 18 | SceCommonDialog | the save data, message, network check and trophy setup dialogs |
+| 13 | SceFiber (executable and libult) | fibers: init, run, switch, return to the thread |
+| 9 | SceVideodecUser | the H.264 decoder (`sceAvcdec*`), CRI Mana's movies |
+| 5 | SceLibKernel, SceThreadmgr | kernel timers (`sceKernel*Timer*`) |
+| 4 | SceNet, SceNetCtl, SceHttp, SceSsl | network initialization |
+| 17 | others | app state and system events, store browse, `sceDisplayWaitSetFrameBufMulti`, game update check, power mode, libc's `sceKernelLibcMktime` and module info, FIOS2's recommended scheduler, libult's profiler and object manager hooks |
+
+Everything the game draws and plays with is implemented: all 97 SceGxm functions, the 34 SceNgs functions, audio
+output, controls, touch, files, threads and synchronization, memory blocks and the application utility's save data.
 
 ## param.sfo
 
@@ -156,10 +192,14 @@ Folders of `data.cpk` (files): `dance/` 4 838 (`dance/player` 4 349, `dance/came
 
 ### Engine
 
-**Inferred** from the file names: the game runs on Atlus's own engine. The shader collection at the top of the
-archive is named `GFDPSP2` ("PSP2" is the Vita), and the model formats (`GMD`, `GAP`, `GFS`, `EPL`) are that
-engine's. This replaces the earlier PhyreEngine guess. The middleware is CRI's: File System (CPK), ADX2 (sound) and
-Sofdec (movies).
+Atlus's own engine, GFD: the executable's source paths name its GFD modules (`module/gfd/...`) and its functions
+(`gfd...`), and the shader collection at the top of the archive is `GFDPSP2` ("PSP2" is the Vita). The model formats
+(`GMD`, `GAP`, `GFS`, `EPL`) are that engine's. The game's own code is in `app_system` (graphics, messages, lip
+sync, input), `dance` (the rhythm game) and `mainmenu`.
+
+The middleware is CRI's, linked into the executable (its version strings): File System 2.69 (CPK), AtomEx 2.07 with
+the AtomEx Sequencer 1.04 (sound, played through NGS: CRI NGS 1.10), and Mana 2.02 / Movie 4.04 (the USM movies,
+decoded through SceVideodec's H.264 decoder).
 
 ### Movies
 
@@ -181,16 +221,17 @@ with format tag 0xFFFE and the ATRAC9 subformat, 2 channels at 48 kHz. There are
 - **The archives need no reader in the runtime.** The game reads them with CRI's code, through the file functions
   (or FIOS2). They are large (1.7 GiB) and read at offsets, so seeking and partial reads matter more than reading
   files whole.
-- **Movies:** the runtime has an H.264 decoder (for AvPlayer). Whether the game reaches it through AvPlayer, the
-  H.264 decoder library, or decodes in software is known only from its imports.
-- **Sound:** ATRAC9 decoding in the runtime is needed for the music; whether through the audio decoder library or
-  NGS is known only from the imports.
+- **Movies:** CRI Mana decodes them with SceVideodec's H.264 decoder (`sceAvcdec*`), which the runtime does not
+  have yet; its H.264 decoder (openh264, used by AvPlayer) can stand behind it.
+- **Sound:** through NGS (all 34 functions are there): CRI's sound reaches the speakers as NGS voices, ATRAC9 among
+  them.
 - **Modules:** `libface` and `libsmart` (face detection and tracking for the camera, **inferred** from the names) are
   loaded by the game; they are only in the base game.
 
-## Still open (needs the plaintext executable)
+## Still open
 
-- The executable's and modules' SHA-256 for the version check (`kVersions` in `src/main.cpp`).
-- Imported libraries and functions (NIDs), and which of them psvrecore implements.
-- Where the rhythm timing comes from (audio position, a clock, or frame counts).
-- Confirmation of the engine, and of the inferred meanings above.
+- Where the rhythm timing comes from (audio position, a clock, or frame counts). The source files named in the
+  executable point at `danceMusic.c`, `danceTimeAdjuster.c` and `appTimer.c`; the code is to be read in M9.
+- The 90 missing imports (above), to be implemented or answered as the console does offline as the game reaches
+  them (M8).
+- The inferred meanings of the data formats (the engine's code will confirm them).

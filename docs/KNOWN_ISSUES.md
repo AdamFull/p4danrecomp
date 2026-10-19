@@ -1,9 +1,8 @@
 # Known issues and open questions
 
-- **The executable and modules are encrypted.** The copy of the console's files has the data in readable form,
-  but `eboot.bin` and the five modules (base game and update) are encrypted SELFs: psvrecore needs them as plaintext
-  ELFs, and cannot make them from these files. Until then there is no supported version, no imports and no code.
-- **Unknown until the code can be analyzed:** where rhythm timing comes from, which system functions the game
-  imports (how it decodes the H.264 movies and the ATRAC9 sound), and confirmation of the engine. What the data shows
-  is in [GAME_REPORT.md](GAME_REPORT.md).
+- **The executable and modules must be plaintext ELFs.** psvrecore reads no encrypted SELF; the version check
+  refuses anything but the update 01.01's plaintext executable.
+- **90 imported functions are missing** (PSN, the system dialogs, fibers, the H.264 decoder, kernel timers, network
+  initialization and a few others: [GAME_REPORT.md](GAME_REPORT.md)). A call to one stops the program.
+- **Unknown until the code is read:** where the rhythm timing comes from.
 - **Linux has not been built.** It is covered only by psvrecore's CI, which runs once the repositories are pushed.

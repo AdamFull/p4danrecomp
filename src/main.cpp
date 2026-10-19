@@ -1,9 +1,8 @@
 // Persona 4: Dancing All Night as a native program: the game described for psvrecore's frontend, which reads the
 // settings and the command line, opens the window and the audio device, and runs the recompiled game.
 //
-// The game's code is generated from its executable once the packages are decrypted (milestone M7), and only for the
-// versions listed below: an executable whose SHA-256 is not listed is refused, never run. Until then the list is
-// empty and the program stops at that check.
+// The game's code is generated from its executable (the update's, as a plaintext ELF) and only runs the versions
+// listed below: an executable whose SHA-256 is not listed is refused, never run.
 
 #include <SDL3/SDL_main.h>
 
@@ -21,11 +20,14 @@ using namespace psvrecore;
 // A version the code was generated from.
 struct Version {
     const char* name;    // ("EU 01.01")
-    const char* sha256;  // eboot.bin's, in lower-case hex
+    const char* sha256;  // eboot.bin's (the plaintext ELF), in lower-case hex
 };
 
-// (none yet: the executable is known once the packages are decrypted)
-constexpr std::span<const Version> kVersions{};
+// (the update's executable: the base game's 01.00 alone is not supported)
+constexpr Version kVersionList[] = {
+    {"EU 01.01", "aa6e1260561393262695063edb4b8bdf9095aa727d248a7f3d9b83851f4d2261"},
+};
+constexpr std::span<const Version> kVersions{kVersionList};
 
 // The recompiled modules (none yet).
 constexpr std::span<const PsvModuleCode* const> kCode{};
@@ -43,10 +45,9 @@ Result<void> check_version(const nx::string& game_folder) {
     const nx::string digest = hex(nx::sha256(std::span<const u8>(bytes->data(), bytes->size())));
     for (const Version& v : kVersions)
         if (digest == v.sha256) return {};
-    return failure(nx::format("{} is not a version this build supports (SHA-256 {}).{}", eboot, digest,
-                              kVersions.empty() ? " No version is supported yet: the game's code has not been "
-                                                  "generated (milestone M7)."
-                                                : ""));
+    return failure(nx::format("{} is not a version this build supports (SHA-256 {}). Supported: the update 01.01 "
+                              "(EU, PCSB00867) as a plaintext ELF.",
+                              eboot, digest));
 }
 
 }  // namespace
