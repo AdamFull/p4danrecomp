@@ -39,6 +39,15 @@ The build makes `p4danrecomp` (`libmain.so` on Android), psvrecore's frontend wi
 build\windows-x64-release\p4danrecomp --game <the extracted game's application folder>
 ```
 
+On Android, build the android-arm64-release preset, then package and install it on the device adb sees:
+
+```
+python scripts/android_apk.py --install
+```
+
+The first start asks for the game's application folder (the system's folder picker) and copies it into the app's
+folder ([Android applications](../psvrecore/docs/BUILDING.md#android-applications)).
+
 Until the game's code is generated (M7), it refuses every executable: no version is supported yet. `run/` is
 git-ignored, for a settings file (`--settings run/settings.ini`) and data (`--data run/data`) kept with the
 checkout.
