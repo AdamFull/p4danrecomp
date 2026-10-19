@@ -20,12 +20,10 @@ ctest --preset linux-x64-release
 
 ## Game files
 
-Put your own packages under `game/`, keeping the folders as they are:
-- the base game under `Game/`;
-- the update under `Updates/`;
-- add-on content under `DLC/`.
-
-Licenses and keys go in `keys/`. Both folders are git-ignored and are never modified.
+Put your own copy of the game's folders from the console under `game/`, one folder for the game holding `app/`,
+`patch/` and `addcont/` as they are under `ux0:` (each with a `PCSB00867` folder): the game, the update (01.01) and
+the add-ons. `game/` is git-ignored and never modified. The game's data is read as it is; its executable and modules
+must be plaintext ELFs for the recompiler, which these copies are not yet (see KNOWN_ISSUES).
 
 The pipeline that extracts, recompiles and translates these files into `generated/` does not exist yet; see
 [ROADMAP.md](ROADMAP.md).
@@ -36,7 +34,7 @@ The build makes `p4danrecomp` (`libmain.so` on Android), psvrecore's frontend wi
 ([running a game](../psvrecore/docs/BUILDING.md#running-a-game-the-frontend)):
 
 ```
-build\windows-x64-release\p4danrecomp --game <the extracted game's application folder>
+build\windows-x64-release\p4danrecomp --game "game\<the game's folder>"
 ```
 
 On Android, build the android-arm64-release preset, then package and install it on the device adb sees:

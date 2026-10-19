@@ -173,11 +173,11 @@ with format tag 0xFFFE and the ATRAC9 subformat, 2 channels at 48 kHz. There are
 
 ## What this means for the runtime
 
-- **`app0:` needs the update over the base game.** The frontend mounts one folder as `app0:`. The copy from the
-  console has the base game and the update in separate folders: `app0:` must show the update's files over the base
-  game's (the executable, three modules and `patch.cpk` from the update; the rest from the base game).
-- **`addcont0:` is not mounted yet.** The add-ons need their folders (`addcont/PCSB00867/<name>`) under the add-on
-  mount, and the add-on functions (listing and mounting them) must find them.
+- **`app0:` is the update over the base game.** Given the copy's folder, the frontend mounts `app0:` with the
+  update's files over the base game's (the executable, three modules and `patch.cpk` from the update; the rest from
+  the base game), and checks the update's executable.
+- **`addcont0:` holds the add-ons** (`addcont/PCSB00867/<name>`): the game lists them there and opens each with
+  `sceAppUtilDrmOpen` before reading it.
 - **The archives need no reader in the runtime.** The game reads them with CRI's code, through the file functions
   (or FIOS2). They are large (1.7 GiB) and read at offsets, so seeking and partial reads matter more than reading
   files whole.
