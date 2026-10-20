@@ -12,13 +12,13 @@
   on Windows too until psvrecore's texture path was fixed: hashing, decoding, the cache, render targets read as
   textures.) Measured on Windows, the frame rate falls while other heavy work runs on the machine (a build): the
   game's threads wait for the CPU.
-- **Songs run at about 20 frames a second on a Pixel 10 Pro** (17-25; cleared there like on Windows). The CPU's
-  work for each scene is the limit: the game's render thread spends 4.7 s of every 5 in sceGxmEndScene, about 10 ms
-  a scene and 4-5 scenes a frame (the surface's colour loaded, up to 2.5 ms of it waiting for an earlier scene this
-  one reads; descriptors and textures, commands, draws, about 0.8 ms each). Not the GPU, idle half the time: the
-  barriers before the 26-32 draws a scene that read the colour they draw over cost up to 1.7 ms of its time a
-  scene, and dropping them (a test) left the frame rate as it was (21.3 to 21.8). The Pixel 10 Pro has no
-  rasterization-order access; it has VK_EXT_shader_tile_image and VK_KHR_dynamic_rendering_local_read.
+- **Songs run at about 26 frames a second on a Pixel 10 Pro** (23-29 over the song, from 20; cleared there like on
+  Windows, which holds 30). A frame's 4-5 scenes take about 4.5 ms of the CPU each (draws, descriptors and
+  textures, commands, about 0.8 ms each; submitting, finishing earlier scenes, the renderer's lock) and 5.5 ms of the
+  GPU, and a scene's end waits about 3.7 ms for the display to let its buffer go (the frame before shown). The
+  barriers before the 26-32 draws a scene that read the colour they draw over cost about 0.7 frames a second
+  (dropped in a test: 22.8 to 23.6, before the frame's own scenes were the display's only wait). The Pixel 10 Pro
+  has no rasterization-order access; it has VK_EXT_shader_tile_image and VK_KHR_dynamic_rendering_local_read.
 - **A crash in Free Dance's menus on Android** (reported, not reproduced): most likely the texture cache, which grew
   by about 110 MB a second in those menus until it was bounded (8.4 GB after 75 s on Windows). Not yet checked on
   the phone with a long session.
