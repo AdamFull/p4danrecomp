@@ -229,8 +229,15 @@ with format tag 0xFFFE and the ATRAC9 subformat, 2 channels at 48 kHz. There are
 
 ## Still open
 
-- Where the rhythm timing comes from (audio position, a clock, or frame counts). The source files named in the
-  executable point at `danceMusic.c`, `danceTimeAdjuster.c` and `appTimer.c`; the code is to be read in M9.
+- The rhythm timing (read in M9): the dance's time (a float, seconds, in the dance state at +0x1DC) is set each
+  frame from the music's CRI playback time (`danceMusic.c`; it moves by the frame's time when that stands still),
+  and the note sequencer (`musical_note_sequencer/mnsProcess.c`) takes its own from the music's played samples
+  (48 kHz, counted in 29.97 frames a second); the two agree to a frame. `danceTimeAdjuster.c` is a table of values
+  keyed by time. A chart (`dance/mns/mnsNNN_D.bin`, CRILAYLA-compressed in data.cpk) is an "MNS" header with the
+  tempo (a float at +0x10), then 8-byte notes from +0x24 to the end of the file: the position (measure in the upper
+  half, beat in the lower, bit 15 an eighth; time = (measure × 4 + beat) × 60 / tempo) and the lane (0 down, 1
+  cross, 2 left, 3 circle, 4 up, 5 triangle, 8 scratch, flags above). The header's count (+0x1C) leaves out the
+  last few notes.
 - The 26 missing imports (above), to be implemented or answered as the console does offline if the game reaches
   them.
 - The inferred meanings of the data formats (the engine's code will confirm them).

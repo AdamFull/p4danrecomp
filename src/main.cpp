@@ -8,6 +8,7 @@
 
 #include <span>
 
+#include "autoplay.hpp"
 #include "psvrecore/frontend/frontend.hpp"
 #include "psvrecore/io/file.hpp"
 #include "core/foundation/core/sha256.h"
@@ -76,5 +77,6 @@ int main(int argc, char** argv) {
     game.code = kCode;
     game.modules = kModules;
     game.check = check_version;
+    game.prepare = p4d::prepare_autoplay;
     return frontend::run(game, argc, argv);
 }

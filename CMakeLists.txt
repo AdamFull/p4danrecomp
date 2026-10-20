@@ -11,10 +11,10 @@ add_subdirectory(psvrecore)
 # The game: psvrecore's frontend running the recompiled game (a shared library loaded by the Java activity on
 # Android, where SDL's activity calls its main).
 if(ANDROID)
-    add_library(p4danrecomp SHARED src/main.cpp)
+    add_library(p4danrecomp SHARED src/main.cpp src/autoplay.cpp)
     set_target_properties(p4danrecomp PROPERTIES OUTPUT_NAME main)
 else()
-    add_executable(p4danrecomp src/main.cpp)
+    add_executable(p4danrecomp src/main.cpp src/autoplay.cpp)
 endif()
 target_link_libraries(p4danrecomp PRIVATE psvrecore::frontend)
 psvrecore_target_defaults(p4danrecomp)

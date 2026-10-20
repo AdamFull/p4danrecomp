@@ -62,6 +62,20 @@ The first start asks for the game's application folder (the system's folder pick
 folder ([Android applications](../psvrecore/docs/BUILDING.md#android-applications)).
 
 Without generated code, or with an executable other than the update 01.01's plaintext ELF, it refuses to start.
+
+### Playing a song automatically
+
+For testing a song from start to end, an automatic player presses each note's button at its time by the game's
+own clock ([src/autoplay.hpp](../src/autoplay.hpp)). Extract the song's chart from data.cpk (song 1 is
+"specialist"; difficulty 0 easy, 1 normal, 2 hard, 3 all night) and point `P4D_AUTOPLAY` at it, with the press
+offset in ms (−70 plays best on Windows at the frame rates below):
+
+```
+python scripts/mns_chart.py 1 1
+set P4D_AUTOPLAY=generated\mns\mns001_1.bin,-70
+```
+
+Then start a song (by hand, or with an `--input` script). Holds are pressed as taps; scratches flick both sticks.
 `run/` is
 git-ignored, for a settings file (`--settings run/settings.ini`) and data (`--data run/data`) kept with the
 checkout.
