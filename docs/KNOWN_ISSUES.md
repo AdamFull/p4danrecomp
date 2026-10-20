@@ -12,11 +12,13 @@
   on Windows too until psvrecore's texture path was fixed: hashing, decoding, the cache, render targets read as
   textures.) Measured on Windows, the frame rate falls while other heavy work runs on the machine (a build): the
   game's threads wait for the CPU.
-- **Songs run at about 20 frames a second on a Pixel 10 Pro** (17-25; cleared there like on Windows). The GPU is the
-  limit: 6-8 ms a scene, where 26-32 of a scene's 75-100 draws read the colour they draw over (blending the game's
-  shaders do themselves), each behind a barrier in the render pass, which a tiling GPU pays for; and a scene read
-  by the next is waited for (2.5 ms). Reading the colour through the tile's own memory (an input attachment, or
-  rasterization-order access) is the next step.
+- **Songs run at about 20 frames a second on a Pixel 10 Pro** (17-25; cleared there like on Windows). The CPU's
+  work for each scene is the limit: the game's render thread spends 4.7 s of every 5 in sceGxmEndScene, about 10 ms
+  a scene and 4-5 scenes a frame (the surface's colour loaded, up to 2.5 ms of it waiting for an earlier scene this
+  one reads; descriptors and textures, commands, draws, about 0.8 ms each). Not the GPU, idle half the time: the
+  barriers before the 26-32 draws a scene that read the colour they draw over cost up to 1.7 ms of its time a
+  scene, and dropping them (a test) left the frame rate as it was (21.3 to 21.8). The Pixel 10 Pro has no
+  rasterization-order access; it has VK_EXT_shader_tile_image and VK_KHR_dynamic_rendering_local_read.
 - **A crash in Free Dance's menus on Android** (reported, not reproduced): most likely the texture cache, which grew
   by about 110 MB a second in those menus until it was bounded (8.4 GB after 75 s on Windows). Not yet checked on
   the phone with a long session.
