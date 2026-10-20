@@ -52,14 +52,20 @@ The build makes `p4danrecomp` (`libmain.so` on Android), psvrecore's frontend wi
 build\windows-x64-release\p4danrecomp --game "game\<the game's folder>"
 ```
 
-On Android, build the android-arm64-release preset, then package and install it on the device adb sees:
+On Android, one script builds the android-arm64-release preset, packages and installs it (debuggable) on the device
+adb sees, and copies the game's folder from `game/` into the application's internal storage. Only the files missing
+there, or of another size, are copied, so a second run copies nothing. The launcher's Play then starts the game:
 
 ```
-python scripts/android_apk.py --install
+python scripts/android_deploy.py                       # build, install, copy the game's files
+python scripts/android_deploy.py --skip-build --launch # the library as built; start it when done
 ```
 
-The first start asks for the game's application folder (the system's folder picker) and copies it into the app's
-folder ([Android applications](../psvrecore/docs/BUILDING.md#android-applications)).
+`--no-files` leaves the files alone, `--no-install` copies the files only, and `--device <serial>` picks one of
+several devices. Without the script, `python scripts/android_apk.py --install` packages and installs the library as
+built. The first start then asks for the game's folder (the system's folder picker) and copies it into the app's
+folder ([Android applications](../psvrecore/docs/BUILDING.md#android-applications)). P4D needs its update, so pick a
+folder laid out as the console's ux0: (`app/`, `patch/`, `addcont/`).
 
 Without generated code, or with an executable other than the update 01.01's plaintext ELF, it refuses to start.
 
