@@ -5,12 +5,13 @@
 - **26 imported functions are missing** (online rankings, the game update check, the Store, and a few of libc's,
   libfios2's and libult's: [GAME_REPORT.md](GAME_REPORT.md)); none is called on the way to the menus. A call to one
   stops the program.
-- **On a Pixel 8a the menus run at 18-22 frames a second** (on Windows at the game's 30, songs and menus): a scene
-  takes 11 ms there, 4.5 of them the GPU's own work and 2 more waiting for it, and the game draws 3-4 scenes a
-  frame. Scenes render synchronously (each submitted and waited for before sceGxmEndScene returns), so the CPU's
-  work and the GPU's never overlap; letting them is the next step. (Songs and menus ran at 8-17 frames a second on
-  Windows too until psvrecore's texture path was fixed: hashing, decoding, the cache, render targets read as
-  textures.)
+- **On phones the menus run just under the game's 30 frames a second**: 29-30 on a Pixel 8a, 29 on a Pixel 10 Pro
+  (on Windows 30, songs and menus). Scenes are no longer waited for at their end (the CPU prepares the next while
+  the GPU draws; the 8a ran the menus at 18-22 before); a scene takes about 3 ms of the CPU on the phones and 4-5 ms
+  of the GPU, 3-4 of them a frame. Songs not yet measured on a phone. (Songs and menus ran at 8-17 frames a second
+  on Windows too until psvrecore's texture path was fixed: hashing, decoding, the cache, render targets read as
+  textures.) Measured on Windows, the frame rate falls while other heavy work runs on the machine (a build): the
+  game's threads wait for the CPU.
 - **A crash in Free Dance's menus on Android** (reported, not reproduced): most likely the texture cache, which grew
   by about 110 MB a second in those menus until it was bounded (8.4 GB after 75 s on Windows). Not yet checked on
   the phone with a long session.
