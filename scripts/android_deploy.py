@@ -90,17 +90,33 @@ def device_files(device):
     return out
 
 
+ATTEMPTS = 4
+
+
 def copy_files(device, game):
     if not (game / "app").is_dir():
         sys.exit(f"{game} has no app/ folder: the game's folder is laid out as the console's ux0: "
                  "(app/<title ID>, patch/<title ID>, addcont/<title ID>)")
-    have = device_files(device)
     want = local_files(game)
-    send = [(rel, size, path) for rel, (size, path) in sorted(want.items()) if have.get(rel) != size]
+    have = device_files(device)
+    print(f"game files: {len(want)} here, {len(have)} on the device")
+    # (adb's stream into the device sometimes ends early, without an error: what did not arrive whole is sent again)
+    for attempt in range(ATTEMPTS):
+        send = [(rel, size, path) for rel, (size, path) in sorted(want.items()) if have.get(rel) != size]
+        if not send:
+            return
+        if attempt:
+            print(f"{len(send)} files did not arrive whole; sending them again")
+        send_files(device, send)
+        have = device_files(device)
+    missing = [rel for rel, (size, _) in sorted(want.items()) if have.get(rel) != size]
+    if missing:
+        sys.exit(f"{len(missing)} files did not arrive whole: {', '.join(missing[:5])}")
+
+
+def send_files(device, send):
     total = sum(size for _, size, _ in send)
-    print(f"game files: {len(want)} here, {len(have)} on the device; {len(send)} to copy ({total / 2**20:.0f} MiB)")
-    if not send:
-        return
+    print(f"{len(send)} to copy ({total / 2**20:.0f} MiB)")
     # (one tar stream into the device, unpacked by the application's user: files adb pushes itself would be the
     # shell's, which the application may not read)
     unpack = f"mkdir -p {DEVICE_GAME} && tar xf - -C {DEVICE_GAME}"
@@ -116,10 +132,6 @@ def copy_files(device, game):
     proc.stdin.close()
     if proc.wait() != 0:
         sys.exit("copying the game's files failed")
-    now = device_files(device)
-    missing = [rel for rel, size, _ in send if now.get(rel) != size]
-    if missing:
-        sys.exit(f"{len(missing)} files did not arrive whole: {', '.join(missing[:5])}")
 
 
 def main():
