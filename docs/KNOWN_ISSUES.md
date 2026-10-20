@@ -8,10 +8,15 @@
 - **On phones the menus run just under the game's 30 frames a second**: 29-30 on a Pixel 8a, 29 on a Pixel 10 Pro
   (on Windows 30, songs and menus). Scenes are no longer waited for at their end (the CPU prepares the next while
   the GPU draws; the 8a ran the menus at 18-22 before); a scene takes about 3 ms of the CPU on the phones and 4-5 ms
-  of the GPU, 3-4 of them a frame. Songs not yet measured on a phone. (Songs and menus ran at 8-17 frames a second
+  of the GPU, 3-4 of them a frame. (Songs and menus ran at 8-17 frames a second
   on Windows too until psvrecore's texture path was fixed: hashing, decoding, the cache, render targets read as
   textures.) Measured on Windows, the frame rate falls while other heavy work runs on the machine (a build): the
   game's threads wait for the CPU.
+- **Songs run at about 20 frames a second on a Pixel 10 Pro** (17-25; cleared there like on Windows). The GPU is the
+  limit: 6-8 ms a scene, where 26-32 of a scene's 75-100 draws read the colour they draw over (blending the game's
+  shaders do themselves), each behind a barrier in the render pass, which a tiling GPU pays for; and a scene read
+  by the next is waited for (2.5 ms). Reading the colour through the tile's own memory (an input attachment, or
+  rasterization-order access) is the next step.
 - **A crash in Free Dance's menus on Android** (reported, not reproduced): most likely the texture cache, which grew
   by about 110 MB a second in those menus until it was bounded (8.4 GB after 75 s on Windows). Not yet checked on
   the phone with a long session.
