@@ -5,9 +5,9 @@
 - **26 imported functions are missing** (online rankings, the game update check, the Store, and a few of libc's,
   libfios2's and libult's: [GAME_REPORT.md](GAME_REPORT.md)); none is called on the way to the menus. A call to one
   stops the program.
-- **Songs run at 11-17 frames a second** (menus at 30) on the development laptop (RTX 4060): the game waits for two
-  vertical blanks a frame and takes longer than that to make one. Notes move in steps and the judgement jitters by
-  about a frame; the automatic player's best offset (−70 ms, a frame) comes from it. Not yet profiled.
+- **Songs ran at 11-17 frames a second** until psvrecore's texture hashing and 8-bit texture decoding were made
+  faster: now at the game's 30 (a scene 6.5 ms, from 37; `PSVRECORE_GXM_PROFILE=1` shows where a scene's time
+  goes). Scenes still render synchronously, the GPU waited for at each (about 3 ms of the 6.5).
 - **Hold notes' ends are not played** by the automatic player (their length is not decoded yet): about 4 misses a
   song. The chart's lane word has flags above the lane (0x1000, 0x0400, 0x0800 on holds; 0x10000 on fever
   scratches) whose meanings are inferred, not read from the code.
