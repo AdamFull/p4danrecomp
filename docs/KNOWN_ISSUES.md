@@ -5,18 +5,16 @@
 - **26 imported functions are missing** (online rankings, the game update check, the Store, and a few of libc's,
   libfios2's and libult's: [GAME_REPORT.md](GAME_REPORT.md)); none is called on the way to the menus. A call to one
   stops the program.
-- **Songs on phones run just under the game's 30 frames a second, with a late frame (67 ms) in most five-second
-  windows**: 29.3 on a Pixel 8a (105 late frames over the song and its menus), 27.9 on a Pixel 10 Pro (measured before
-  the CPU lending below). On Windows songs hold 30 at 1x, 2x and 4x (a late frame in 1-2 of 19 windows; the FPS
-  overlay, F3, shows the frame graph). On the phones the game's three emulated CPUs are what run out: in a late
-  frame its threads held about 175 of their 200 ms, a scene's host work 4 ms of it (copies of vertices and
-  uniforms, textures, commands; vertex streams are copied once a scene now, straight into their buffer), and the
-  game's job threads waited for a CPU. A scene's end now lends its CPU to them while the host renders (164 late
-  frames to 105 on the 8a). Rendering scenes on a thread of their own (PSVRECORE_GXM_SCENE_THREAD=1) was slower, and
-  P4D rewrites what a scene reads about a frame after it ends, so that thread stays at most a scene behind. The GPU
-  takes 3.7-5.5 ms a scene (4-5 scenes a frame); the Pixel 10 Pro has no rasterization-order access (barriers
-  before the 26-32 draws a scene that read the colour; it has VK_EXT_shader_tile_image and
-  VK_KHR_dynamic_rendering_local_read, not used yet).
+- **Songs on a Pixel 8a hold the game's 30 frames a second with a few late frames** (5-12 over a song of 2:20, 34
+  of 39 five-second windows without one), since Android is told the frames' deadline (performance hints: its CPUs
+  ran at about half their clocks before, and 165-219 frames were late). The Pixel 10 Pro has not been measured since
+  (27.9 before). On Windows songs hold 30 at 1x, 2x and 4x (the FPS overlay, F3, shows the frame graph). What is
+  left on the phones: a scene's host work (about 3.8 ms: descriptors and textures, draws, copies), writing scenes
+  back under the renderer's lock (1-3 ms, now and then 8-15), movie frames converted from YUV on the CPU (11-19 ms
+  a new frame), and the first draw of a shader compiled at once (a 4.5 s stall once on the 8a). Rendering scenes on
+  a thread of their own (PSVRECORE_GXM_SCENE_THREAD=1) was slower, and P4D rewrites what a scene reads about a frame
+  after it ends. The Pixel 10 Pro has no rasterization-order access (barriers before the draws that read the
+  colour); it has VK_EXT_shader_tile_image and VK_KHR_dynamic_rendering_local_read, not used yet.
 - **At 2x a Pixel 10 Pro runs a song at about 12 frames a second**: its GPU takes 14-21 ms a scene, four times the
   pixels of 1x (measured before the frame was shown from the GPU: the renderer now copies it into the window's image,
   where it was read back, 33 MB a frame at 4x; depth is read back and loaded a row of samples per surface row, a
