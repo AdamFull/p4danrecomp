@@ -12,10 +12,17 @@
   graph). What is left on the phones: a scene's host work (about 3.8 ms: descriptors and textures, draws, copies),
   writing scenes back under the renderer's lock (1-3 ms, now and then 8-15), and without a shader cache (the first
   run, or the first after the translator changes) the first draws of each program waiting for its pipelines: a menu
-  or a song's start stalls for up to 0.8 s once (4.6 s, then 1.4 s, before the translated programs were made
+  or a song's start stalls for up to 0.3-0.4 s once (4.6 s, then 1.4 s, before the translated programs were made
   smaller: the secondary programs' compute shaders, half-precision rounding with the GPU's own conversion where it
-  is exact, memory bursts). The 8a's driver compiles the pipelines of a song's start in 2.2 s (3.7 s before); a new
-  vertex shader is most of that (83 ms on average). Movie frames are converted from YUV on the GPU (0.1-0.7 ms a
+  is exact, memory bursts; 0.8 s before a scene's new shaders and pipelines were made on several threads). The 8a's
+  driver compiles the pipelines of a song's start in 0.8 s on four threads (2.2 s on one, 3.7 s before); a new
+  vertex shader is most of that (83 ms on average, alone). With four at once each takes two fifths longer, so a
+  scene's new pipelines take about their sum over three. Its driver compiles a vertex shader for the fragment
+  shader it is paired with (a pipeline with another fragment shader does not help) but not for the fixed-function
+  state: the game creates all of its 374 vertex programs and 723 fragment programs (656 paired with a vertex
+  program) at boot, so compiling those pairs in the background then would leave the first run without these
+  stalls, for 20 s or more of the phone's cores and a much larger cache (not done). A song's start also decodes
+  about 50 new textures each run (40-65 ms on the 8a). Movie frames are converted from YUV on the GPU (0.1-0.7 ms a
   frame on the 8a, 4.4-5.7 ms on the CPU before). Rendering scenes on a thread of their own
   (PSVRECORE_GXM_SCENE_THREAD=1) was slower, and P4D rewrites what a scene reads about a frame after it ends. The
   Pixel 10 Pro has no rasterization-order access (barriers before the draws that read the colour); it has
