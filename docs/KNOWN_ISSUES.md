@@ -7,9 +7,9 @@
   stops the program.
 - **Songs on a Pixel 8a hold the game's 30 frames a second with a few late frames** (5-12 over a song of 2:20, 6 in
   the last run, 34 of 39 five-second windows without one), since Android is told the frames' deadline (performance
-  hints: its CPUs ran at about half their clocks before, and 165-219 frames were late). The Pixel 10 Pro has not been measured since
-  (27.9 before). On Windows songs hold 30 at 1x, 2x and 4x (the FPS overlay, F3, shows the frame graph). What is
-  left on the phones: a scene's host work (about 3.8 ms: descriptors and textures, draws, copies), writing scenes
+  hints: its CPUs ran at about half their clocks before, and 165-219 frames were late). The Pixel 10 Pro has not
+  been measured since (27.9 before). On Windows songs hold 30 at 1x, 2x and 4x (the FPS overlay, F3, shows the
+  frame graph). What is left on the phones: a scene's host work (about 3.8 ms: descriptors and textures, draws, copies), writing scenes
   back under the renderer's lock (1-3 ms, now and then 8-15), and without a shader cache (the first run, or the
   first after the translator changes) the first draws of each program waiting for its pipelines: the 8a's driver
   takes 20-250 ms a graphics pipeline, so a menu or a song's start stalls for up to 1.4 s once (4.6 s before the
