@@ -21,8 +21,9 @@
   shader it is paired with (a pipeline with another fragment shader does not help) but not for the fixed-function
   state: the game creates all of its 374 vertex programs and 723 fragment programs (656 paired with a vertex
   program) at boot, so compiling those pairs in the background then would leave the first run without these
-  stalls, for 20 s or more of the phone's cores and a much larger cache (not done). A song's start also decodes
-  about 50 new textures each run (40-65 ms on the 8a). Movie frames are converted from YUV on the GPU (0.1-0.7 ms a
+  stalls, for 20 s or more of the phone's cores and a much larger cache (not done). A song's start also makes
+  about 50 new textures each run: decoded on several threads, its scene takes 48-55 ms on the 8a (75 before),
+  most of it making their images and staging buffers. Movie frames are converted from YUV on the GPU (0.1-0.7 ms a
   frame on the 8a, 4.4-5.7 ms on the CPU before). Rendering scenes on a thread of their own
   (PSVRECORE_GXM_SCENE_THREAD=1) was slower, and P4D rewrites what a scene reads about a frame after it ends. The
   Pixel 10 Pro has no rasterization-order access (barriers before the draws that read the colour); it has
