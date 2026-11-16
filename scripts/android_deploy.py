@@ -21,7 +21,6 @@ import platform
 import shlex
 import subprocess
 import sys
-import tarfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -29,6 +28,8 @@ PRESET = "android-arm64-release"
 PACKAGE = "io.github.adamfull.p4danrecomp"
 LAUNCHER = "io.github.adamfull.psvrecore.LauncherActivity"
 DEVICE_GAME = f"/data/user/0/{PACKAGE}/files/game"  # (internal storage: run-as reaches only that; the launcher looks there too)
+STAGING = "/data/local/tmp/p4danrecomp-files"  # (pushed there by adb, then copied in by the application's user)
+BATCH = 512 * 2**20  # (staged at most this much at once)
 PARTS = ("app", "patch", "addcont")
 
 
@@ -100,7 +101,7 @@ def copy_files(device, game):
     want = local_files(game)
     have = device_files(device)
     print(f"game files: {len(want)} here, {len(have)} on the device")
-    # (adb's stream into the device sometimes ends early, without an error: what did not arrive whole is sent again)
+    # (a copy sometimes ends early, without an error: what did not arrive whole is sent again)
     for attempt in range(ATTEMPTS):
         send = [(rel, size, path) for rel, (size, path) in sorted(want.items()) if have.get(rel) != size]
         if not send:
@@ -117,21 +118,31 @@ def copy_files(device, game):
 def send_files(device, send):
     total = sum(size for _, size, _ in send)
     print(f"{len(send)} to copy ({total / 2**20:.0f} MiB)")
-    # (one tar stream into the device, unpacked by the application's user: files adb pushes itself would be the
-    # shell's, which the application may not read)
-    unpack = f"mkdir -p {DEVICE_GAME} && tar xf - -C {DEVICE_GAME}"
-    proc = subprocess.Popen(adb_cmd(device) + ["exec-in", f"run-as {PACKAGE} sh -c {shlex.quote(unpack)}"],
-                            stdin=subprocess.PIPE)
+    # (pushed by adb to a folder of the shell's, then copied into the application's storage by its own user: files
+    # adb puts there itself would be the shell's, which the application may not read. Not one stream into run-as:
+    # adb's server keeps all that a stream is sent ahead of the device, and ran out of memory with a device slower
+    # to take it)
+    copy_in = f"mkdir -p {DEVICE_GAME} && cp -r {STAGING}/. {DEVICE_GAME}/"
     sent = 0
-    with tarfile.open(fileobj=proc.stdin, mode="w|", format=tarfile.GNU_FORMAT) as tar:
-        for rel, size, path in send:
-            tar.add(path, arcname=rel, recursive=False)
+    batches, batch, size_of = [], [], 0
+    for item in send:
+        if batch and size_of + item[1] > BATCH:
+            batches.append(batch)
+            batch, size_of = [], 0
+        batch.append(item)
+        size_of += item[1]
+    batches.append(batch)
+    for batch in batches:
+        device_shell(device, f"rm -rf {STAGING}")
+        for rel, size, path in batch:
+            subprocess.run(adb_cmd(device) + ["push", str(path), f"{STAGING}/{rel}"], check=True,
+                           capture_output=True)
             sent += size
             print(f"\r  {sent / 2**20:8.0f} / {total / 2**20:.0f} MiB", end="", flush=True)
+        device_shell(device, f"chmod -R a+rX {STAGING}")
+        device_shell(device, f"run-as {PACKAGE} sh -c {shlex.quote(copy_in)}")
+    device_shell(device, f"rm -rf {STAGING}")
     print()
-    proc.stdin.close()
-    if proc.wait() != 0:
-        sys.exit("copying the game's files failed")
 
 
 def main():
