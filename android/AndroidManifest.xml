@@ -2,7 +2,7 @@
 <!-- The game as an Android application: psvrecore's launcher (which imports the game's files with the system's
      folder picker the first time) and activity (SDL's, running libmain.so). Packaged by scripts/android_apk.py. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.github.adamfull.p4danrecomp"
+    package="io.github.adamfull.p4dancingallnight"
     android:installLocation="auto">
 
     <uses-feature android:name="android.hardware.vulkan.version" android:version="0x401000" android:required="true" />
@@ -13,7 +13,7 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
-        android:label="p4danrecomp"
+        android:label="Persona 4: Dancing All Night"
         android:extractNativeLibs="false"
         android:enableOnBackInvokedCallback="false"
         android:appCategory="game"

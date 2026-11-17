@@ -25,7 +25,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PRESET = "android-arm64-release"
-PACKAGE = "io.github.adamfull.p4danrecomp"
+PACKAGE = "io.github.adamfull.p4dancingallnight"
 LAUNCHER = "io.github.adamfull.psvrecore.LauncherActivity"
 DEVICE_GAME = f"/data/user/0/{PACKAGE}/files/game"  # (internal storage: run-as reaches only that; the launcher looks there too)
 STAGING = "/data/local/tmp/p4danrecomp-files"  # (pushed there by adb, then copied in by the application's user)
