@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The game as an Android application: psvrecore's launcher (which imports the game's files with the system's
-     folder picker the first time) and activity (SDL's, running libmain.so). Packaged by scripts/android_apk.py. -->
+<!-- The game as an Android application: psvrecore's launcher (straight on to the game when its files are there;
+     otherwise a menu, which imports them with the system's folder picker) and activity (SDL's, running
+     libmain.so). Packaged by scripts/android_apk.py. -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="io.github.adamfull.p4dancingallnight"
     android:installLocation="auto">
@@ -29,6 +30,11 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- (the files without which the launcher shows its menu instead of starting the game: the base game's
+                 data and the update 01.01, the version the code was generated from; the add-on content is optional) -->
+            <meta-data
+                android:name="psvrecore.required"
+                android:value="app/PCSB00867/eboot.bin;app/PCSB00867/data/data.cpk;app/PCSB00867/data/vita.cpk;patch/PCSB00867/eboot.bin;patch/PCSB00867/data/patch.cpk;patch/PCSB00867/sce_module/libc.suprx;patch/PCSB00867/sce_module/libfios2.suprx" />
         </activity>
         <activity
             android:name="io.github.adamfull.psvrecore.PsvrecoreActivity"

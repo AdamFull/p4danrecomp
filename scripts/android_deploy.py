@@ -5,7 +5,8 @@
 2. the APK (scripts/android_apk.py), debuggable so that the files can go in through run-as, installed;
 3. the game's folder (game/<the game>/ with app/, patch/ and addcont/ as on the console's ux0:) copied into the
    application's internal storage on the device (files/game: adb's run-as reaches nothing else), where the
-   launcher's Play finds it: only the files missing there or of another size, so a second run copies nothing.
+   launcher finds it and starts the game: only the files missing there or of another size, so a second run copies
+   nothing.
 
     python scripts/android_deploy.py                         # all three
     python scripts/android_deploy.py --skip-build            # the library as built: package, install, files
@@ -92,6 +93,7 @@ def device_files(device):
 
 
 ATTEMPTS = 4
+INCOMPLETE = ".incomplete"  # (psvrecore's LauncherActivity: a folder with it is not the game's yet)
 
 
 def copy_files(device, game):
@@ -101,11 +103,16 @@ def copy_files(device, game):
     want = local_files(game)
     have = device_files(device)
     print(f"game files: {len(want)} here, {len(have)} on the device")
+    # (while files go in, and after a copy cut short, the folder is marked incomplete: the launcher then shows its
+    # menu instead of starting a game with files missing)
+    marker = f"{DEVICE_GAME}/{INCOMPLETE}"
     # (a copy sometimes ends early, without an error: what did not arrive whole is sent again)
     for attempt in range(ATTEMPTS):
         send = [(rel, size, path) for rel, (size, path) in sorted(want.items()) if have.get(rel) != size]
         if not send:
+            device_shell(device, f"run-as {PACKAGE} rm -f {marker}")
             return
+        device_shell(device, f"run-as {PACKAGE} sh -c {shlex.quote(f'mkdir -p {DEVICE_GAME} && touch {marker}')}")
         if attempt:
             print(f"{len(send)} files did not arrive whole; sending them again")
         send_files(device, send)
