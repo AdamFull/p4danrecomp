@@ -8,26 +8,28 @@ project(p4danrecomp
 # The toolkit (psvrecore): recompiler, runtime, tools and their tests.
 add_subdirectory(psvrecore)
 
-# The game: psvrecore's frontend running the recompiled game (a shared library loaded by the Java activity on
-# Android, where SDL's activity calls its main).
+# The game: psvrecore's frontend running the recompiled game. An executable on the shared psvrecore library
+# (psvrecore.dll / libpsvrecore.so.N next to it) on Windows and Linux; on Android a shared library loaded by the Java
+# activity (SDL's activity calls its main), with psvrecore linked in statically.
 if(ANDROID)
     add_library(p4danrecomp SHARED src/main.cpp src/autoplay.cpp)
     set_target_properties(p4danrecomp PROPERTIES OUTPUT_NAME main)
 else()
     add_executable(p4danrecomp src/main.cpp src/autoplay.cpp)
 endif()
-target_link_libraries(p4danrecomp PRIVATE psvrecore::frontend)
+target_link_libraries(p4danrecomp PRIVATE psvrecore::game)
 psvrecore_target_defaults(p4danrecomp)
 
 # The game's code, recompiled by scripts/generate_code.py into generated/code (never committed): the executable and
-# the modules it imports from (libc, libfios2). Without it the program builds with no code and refuses to start.
+# the modules it imports from (libc, libfios2), compiled into the game's executable. Without it the program builds
+# with no code and refuses to start.
 set(P4D_GENERATED_DIR "${CMAKE_CURRENT_SOURCE_DIR}/generated/code")
 if(EXISTS "${P4D_GENERATED_DIR}/p4d_eboot")
     foreach(_module p4d_eboot p4d_libc p4d_libfios2)
         file(GLOB _sources CONFIGURE_DEPENDS "${P4D_GENERATED_DIR}/${_module}/*.c")
         add_library(${_module}_code STATIC ${_sources})
         target_include_directories(${_module}_code PRIVATE "${P4D_GENERATED_DIR}/${_module}")
-        target_link_libraries(${_module}_code PUBLIC psvrecore::recomp_support)
+        target_link_libraries(${_module}_code PUBLIC psvrecore::generated_code)
         psvrecore_generated_code(${_module}_code)
         target_link_libraries(p4danrecomp PRIVATE ${_module}_code)
     endforeach()

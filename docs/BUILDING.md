@@ -46,7 +46,11 @@ reads the executable at guest addresses (strings, words), for following a crash.
 ## Running
 
 The build makes `p4danrecomp` (`libmain.so` on Android), psvrecore's frontend with the game's code
-([running a game](../psvrecore/docs/BUILDING.md#running-a-game-the-frontend)):
+([running a game](../psvrecore/docs/BUILDING.md#running-a-game-the-frontend)). On Windows and Linux it is an
+executable with the game's recompiled code, on psvrecore's runtime library next to it (`psvrecore.dll`,
+`libpsvrecore.so.N`, in the same build folder): the two go together, built from the same psvrecore with the same
+compiler ([the shared runtime library](../psvrecore/docs/BUILDING.md#the-shared-runtime-library)); a mismatch is
+refused at start-up. On Android psvrecore is linked into `libmain.so`.
 
 ```
 build\windows-x64-release\p4danrecomp --game "game\<the game's folder>"
