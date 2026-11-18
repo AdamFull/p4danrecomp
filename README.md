@@ -47,6 +47,10 @@ python scripts/package.py linux     # build/package/linux/p4danrecomp/ (on Linux
 python scripts/package.py android   # build/package/android/p4danrecomp.apk (--install installs it)
 ```
 
+The game's LiveArea (its background and gate, `sce_sys/livearea`) is the launch screen: shown from the window's first
+image until the game's first frame, which it fades into (`[display] launch_screen = false` turns it off); on Android
+the system's splash screen is in its colour, and `scripts/android_apk.py` (the deploy script's) adds it too.
+
 What is made from `sce_sys` goes to `generated/package/`; nothing made from the game is committed. Details:
 psvrecore's [docs/BUILDING.md](psvrecore/docs/BUILDING.md), "Packaging a game".
 

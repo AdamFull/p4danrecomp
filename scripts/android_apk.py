@@ -6,6 +6,9 @@ The launcher icon is made from a picture on this computer, never kept in the rep
 one there, otherwise the game's own icon (game/<the game>/app/PCSB00867/sce_sys/icon0.png). Without either, the
 package gets a plain placeholder.
 
+The launch screen (the system's splash screen in its colour, then the picture until the game's first frame) is made
+from the game's LiveArea (game/<the game>/app/<title ID>/sce_sys/livearea), when the game's folder is there.
+
     python scripts/android_apk.py --install
 """
 
@@ -15,6 +18,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TITLE_ID = "PCSB00867"
+
+
+def game_folder():
+    found = sorted(p for p in (ROOT / "game").glob("*") if (p / "app" / TITLE_ID).is_dir()) \
+        if (ROOT / "game").is_dir() else []
+    return found[0] if found else None
 
 
 def icon_picture():
@@ -37,4 +46,9 @@ if __name__ == "__main__":
         cmd += ["--icon", str(picture)]
     elif not picture:
         print("icon: no game/icon.png, nor the game's icon0.png under game/: a placeholder")
+    game = game_folder()
+    # (a psvrecore checkout from before the launch screen does without it)
+    supported = "--launch" in (ROOT / "psvrecore" / "scripts" / "android_apk.py").read_text(encoding="utf-8")
+    if game and supported and "--launch" not in sys.argv and "--no-launch" not in sys.argv:
+        cmd += ["--launch", str(game)]
     sys.exit(subprocess.run(cmd + sys.argv[1:]).returncode)
