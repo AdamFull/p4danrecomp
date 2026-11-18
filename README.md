@@ -35,6 +35,21 @@ scripts\build.ps1
 
 See [docs/BUILDING.md](docs/BUILDING.md).
 
+## Packaging
+
+One command per platform builds the game from its folder in `game/` (recompiling it first when `generated/code` is
+empty) and packages it, named and iconed from the game's own `sce_sys` (`param.sfo`'s title, translations and
+version; `icon0.png`, or `game/icon.png` when you put a logo there):
+
+```
+python scripts/package.py windows   # build/package/windows/p4danrecomp/ (install.ps1 adds a Start menu shortcut)
+python scripts/package.py linux     # build/package/linux/p4danrecomp/ (on Linux: .desktop entry, icons, install.sh)
+python scripts/package.py android   # build/package/android/p4danrecomp.apk (--install installs it)
+```
+
+What is made from `sce_sys` goes to `generated/package/`; nothing made from the game is committed. Details:
+psvrecore's [docs/BUILDING.md](psvrecore/docs/BUILDING.md), "Packaging a game".
+
 ## License
 
 MIT; see [LICENSE](LICENSE). *Persona 4: Dancing All Night* is the property of its owners and is not part of this

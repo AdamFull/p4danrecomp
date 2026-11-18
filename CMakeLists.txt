@@ -19,6 +19,9 @@ else()
 endif()
 target_link_libraries(p4danrecomp PRIVATE psvrecore::game)
 psvrecore_target_defaults(p4danrecomp)
+# (its icon and version information on Windows, made from the game's sce_sys by scripts/package.py into
+# generated/package/; and the runtime library found beside it on Linux)
+psvrecore_game_package(p4danrecomp)
 
 # The game's code, recompiled by scripts/generate_code.py into generated/code (never committed): the executable and
 # the modules it imports from (libc, libfios2), compiled into the game's executable. Without it the program builds
