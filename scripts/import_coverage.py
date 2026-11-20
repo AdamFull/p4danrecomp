@@ -8,12 +8,14 @@ exports_*.tsv) and writes generated/report/coverage.tsv; prints a summary by lib
 """
 
 import csv
+import os
 import re
 import sys
 from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+PSVRECORE = Path(os.environ.get("PSVRECORE_ROOT") or ROOT.parent / "psvrecore")  # (psvrecore's standalone checkout)
 REPORT = ROOT / "generated" / "report"
 
 
@@ -21,7 +23,7 @@ def hle_nids():
     """The NIDs psvrecore's HLE libraries implement: every HLE_FUNCTION in its sources, and the functions and
     variables listed by hand ({0x..., "name", ...} or Function{0x..., "name", ...})."""
     found = set()
-    for path in (ROOT / "psvrecore" / "libs").rglob("*.cpp"):
+    for path in (PSVRECORE / "libs").rglob("*.cpp"):
         text = path.read_text(encoding="utf-8", errors="replace")
         for m in re.finditer(r'HLE_\w+\(\s*0x([0-9A-Fa-f]{8})|\{\s*0x([0-9A-Fa-f]{8}),\s*"\w+"', text):
             found.add(int(m.group(1) or m.group(2), 16))

@@ -11,12 +11,14 @@ The game's folder is the one in game/ (or --game <folder>). The pictures and fil
 generated/package/; nothing made from the game is committed.
 """
 
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+PSVRECORE = Path(os.environ.get("PSVRECORE_ROOT") or ROOT.parent / "psvrecore")  # (psvrecore's standalone checkout)
 
 if __name__ == "__main__":
-    sys.exit(subprocess.run([sys.executable, str(ROOT / "psvrecore" / "scripts" / "package.py"), *sys.argv[1:],
+    sys.exit(subprocess.run([sys.executable, str(PSVRECORE / "scripts" / "package.py"), *sys.argv[1:],
                              "--root", str(ROOT), "--name", "p4danrecomp"]).returncode)

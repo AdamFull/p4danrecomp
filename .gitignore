@@ -53,3 +53,6 @@ __pycache__/
 *.rep/
 .DS_Store
 Thumbs.db
+
+# --- psvrecore's old submodule folder (psvrecore is its own checkout beside this repository now) ---
+/psvrecore/

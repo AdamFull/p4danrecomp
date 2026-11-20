@@ -1,12 +1,19 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.27)
 
 project(p4danrecomp
     VERSION 0.1.0
     DESCRIPTION "Native port of Persona 4: Dancing All Night (PS Vita) via static recompilation"
     LANGUAGES C CXX)
 
-# The toolkit (psvrecore): recompiler, runtime, tools and their tests.
-add_subdirectory(psvrecore)
+# psvrecore (recompiler, runtime, tools): its standalone checkout, vitarecomp/psvrecore beside this repository or
+# PSVRECORE_ROOT, installed once per preset (in psvrecore, scripts\build.ps1 -Preset <preset> -NoTest -Install); the
+# game builds against that package (psvrecore's cmake/UsePsvrecore.cmake). psvrecore.version: the commit last checked.
+if(DEFINED ENV{PSVRECORE_ROOT})
+    set(PSVRECORE_ROOT "$ENV{PSVRECORE_ROOT}" CACHE PATH "psvrecore's checkout")
+else()
+    set(PSVRECORE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../psvrecore" CACHE PATH "psvrecore's checkout")
+endif()
+include("${PSVRECORE_ROOT}/cmake/UsePsvrecore.cmake")
 
 # The game: psvrecore's frontend running the recompiled game. An executable on the shared psvrecore library
 # (psvrecore.dll / libpsvrecore.so.N next to it) on Windows and Linux; on Android a shared library loaded by the Java
@@ -40,8 +47,4 @@ if(EXISTS "${P4D_GENERATED_DIR}/p4d_eboot")
     message(STATUS "p4danrecomp: the game's generated code from ${P4D_GENERATED_DIR}")
 else()
     message(STATUS "p4danrecomp: no generated code (scripts/generate_code.py): the program will refuse to start")
-endif()
-
-if(PSVRECORE_BUILD_TESTS)
-    enable_testing()  # here too, so ctest from the build root runs psvrecore's tests (and the game's, once it has any)
 endif()

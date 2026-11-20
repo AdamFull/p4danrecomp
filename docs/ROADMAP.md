@@ -1,6 +1,6 @@
 # p4danrecomp roadmap
 
-The toolkit milestones M0–M6 are in [psvrecore/docs/ROADMAP.md](../psvrecore/docs/ROADMAP.md). They are verified
+The toolkit milestones M0–M6 are in [psvrecore's docs/ROADMAP.md](https://github.com/AdamFull/psvrecore/blob/master/docs/ROADMAP.md). They are verified
 with test programs and do not need the game. The game milestones are:
 
 | # | Milestone | Done when |

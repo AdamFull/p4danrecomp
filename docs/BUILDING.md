@@ -1,11 +1,19 @@
 # Building p4danrecomp
 
 The toolchain, presets and options are psvrecore's, described in
-[psvrecore/docs/BUILDING.md](../psvrecore/docs/BUILDING.md). This repository uses the same preset names.
+[psvrecore's docs/BUILDING.md](https://github.com/AdamFull/psvrecore/blob/master/docs/BUILDING.md). This repository uses the same preset names.
+
+psvrecore is its own checkout, `../psvrecore` beside this repository (or the folder `PSVRECORE_ROOT` names), built
+and installed once per preset into its `install/<preset>`; the game builds against that package
+(psvrecore's `cmake/UsePsvrecore.cmake`). Install it again after psvrecore changes. `-DPSVRECORE_FROM_SOURCE=ON`
+builds psvrecore's sources with the game instead, for changes to both at once. `psvrecore.version` holds the commit
+the game was last checked with; a package from another commit gets a warning at configure time, and the game's
+code may need generating again.
 
 ```
-git submodule update --init --recursive
-scripts\build.ps1                                    # Windows: windows-x64-debug, build + tests
+git clone --recursive https://github.com/AdamFull/psvrecore ..\psvrecore   # once, beside this repository
+..\psvrecore\scripts\build.ps1 -Preset windows-x64-debug -NoTest -Install  # once per preset, and after it changes
+scripts\build.ps1                                    # Windows: windows-x64-debug
 scripts\build.ps1 -Preset windows-x64-release
 scripts\build.ps1 -Preset android-arm64-release
 ```
@@ -27,7 +35,7 @@ must be plaintext ELFs (`psvinfo info` says "container ELF").
 
 ## Recompiling the game
 
-Build once (for psvrecomp), recompile the game's executable and modules into `generated/code` (git-ignored: it is the
+With psvrecore's package, recompile the game's executable and modules into `generated/code` (git-ignored: it is the
 game's code), and build again: the build then compiles that code into the program.
 
 ```
@@ -46,10 +54,10 @@ reads the executable at guest addresses (strings, words), for following a crash.
 ## Running
 
 The build makes `p4danrecomp` (`libmain.so` on Android), psvrecore's frontend with the game's code
-([running a game](../psvrecore/docs/BUILDING.md#running-a-game-the-frontend)). On Windows and Linux it is an
+([running a game](https://github.com/AdamFull/psvrecore/blob/master/docs/BUILDING.md#running-a-game-the-frontend)). On Windows and Linux it is an
 executable with the game's recompiled code, on psvrecore's runtime library next to it (`psvrecore.dll`,
 `libpsvrecore.so.N`, in the same build folder): the two go together, built from the same psvrecore with the same
-compiler ([the shared runtime library](../psvrecore/docs/BUILDING.md#the-shared-runtime-library)); a mismatch is
+compiler ([the shared runtime library](https://github.com/AdamFull/psvrecore/blob/master/docs/BUILDING.md#the-shared-runtime-library)); a mismatch is
 refused at start-up. On Android psvrecore is linked into `libmain.so`.
 
 ```
@@ -68,7 +76,7 @@ python scripts/android_deploy.py --skip-build --launch # the library as built; s
 `--no-files` leaves the files alone, `--no-install` copies the files only, and `--device <serial>` picks one of
 several devices. Without the script, `python scripts/android_apk.py --install` packages and installs the library as
 built. The first start then asks for the game's folder (the system's folder picker) and copies it into the app's
-folder ([Android applications](../psvrecore/docs/BUILDING.md#android-applications)). P4D needs its update, so pick a
+folder ([Android applications](https://github.com/AdamFull/psvrecore/blob/master/docs/BUILDING.md#android-applications)). P4D needs its update, so pick a
 folder laid out as the console's ux0: (`app/`, `patch/`, `addcont/`).
 
 Without generated code, or with an executable other than the update 01.01's plaintext ELF, it refuses to start.

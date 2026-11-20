@@ -5,16 +5,18 @@ into generated/mns/. With --show, also its notes with their times.
 
     python scripts/mns_chart.py 1 1 --show
 
-The archive's table comes from psvrecore's psvinfo (`psvinfo cpk --list`, built with the toolkit).
+The archive's table comes from psvrecore's psvinfo (`psvinfo cpk --list`, from psvrecore's installed package).
 """
 
 import argparse
+import os
 import struct
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+PSVRECORE = Path(os.environ.get("PSVRECORE_ROOT") or ROOT.parent / "psvrecore")  # (psvrecore's standalone checkout)
 LANES = {0: "down", 1: "cross", 2: "left", 3: "circle", 4: "up", 5: "triangle", 8: "scratch"}
 
 
@@ -71,12 +73,12 @@ def crilayla(data):
 
 def find_psvinfo():
     for preset in ("windows-x64-release", "windows-x64-debug", "linux-x64-release", "linux-x64-debug"):
-        for folder in (ROOT / "build" / preset / "psvrecore", ROOT / "psvrecore" / "build" / preset):
-            for name in ("psvinfo.exe", "psvinfo"):
-                p = folder / "tools" / "psvinfo" / name
-                if p.exists():
-                    return p
-    sys.exit("psvinfo not found: build psvrecore (or the game) first")
+        for name in ("psvinfo.exe", "psvinfo"):
+            p = PSVRECORE / "install" / preset / "bin" / name
+            if p.exists():
+                return p
+    sys.exit("psvinfo not found: install a psvrecore package "
+             "(in psvrecore: scripts\\build.ps1 -Preset windows-x64-release -NoTest -Install)")
 
 
 def notes(chart):

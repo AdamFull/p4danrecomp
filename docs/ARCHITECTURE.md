@@ -1,6 +1,6 @@
 # p4danrecomp architecture
 
-psvrecore holds the toolkit's design: [psvrecore/docs/ARCHITECTURE.md](../psvrecore/docs/ARCHITECTURE.md). This
+psvrecore holds the toolkit's design: [psvrecore's docs/ARCHITECTURE.md](https://github.com/AdamFull/psvrecore/blob/master/docs/ARCHITECTURE.md). This
 document covers what the game repository adds on top of it.
 
 ## Rules

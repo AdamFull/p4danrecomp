@@ -8,12 +8,14 @@ there). Nothing it writes is committed: it is the game's code.
 """
 
 import argparse
+import os
 import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+PSVRECORE = Path(os.environ.get("PSVRECORE_ROOT") or ROOT.parent / "psvrecore")  # (psvrecore's standalone checkout)
 TITLE = "PCSB00867"
 
 # Each module: its C name, its file (from the update's folder if there, else the base game's), and where its segments
@@ -31,12 +33,13 @@ MODULES = [
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--game", required=True, help="the game's folder (app/, patch/, addcont/)")
-    ap.add_argument("--preset", default="windows-x64-release", help="the build of psvrecomp to use")
+    ap.add_argument("--preset", default="windows-x64-release", help="the psvrecore package whose psvrecomp to use")
     args = ap.parse_args()
     exe = ".exe" if sys.platform == "win32" else ""
-    psvrecomp = ROOT / "build" / args.preset / "psvrecore" / "tools" / "psvrecomp" / f"psvrecomp{exe}"
+    psvrecomp = PSVRECORE / "install" / args.preset / "bin" / f"psvrecomp{exe}"
     if not psvrecomp.exists():
-        raise SystemExit(f"{psvrecomp} not found: build the {args.preset} preset first")
+        raise SystemExit(f"{psvrecomp} not found: install psvrecore's {args.preset} package "
+                         f"(in psvrecore: scripts\\build.ps1 -Preset {args.preset} -NoTest -Install)")
     game = Path(args.game)
     out = ROOT / "generated" / "code"
     for name, rel, bases in MODULES:

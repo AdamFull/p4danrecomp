@@ -12,11 +12,13 @@ from the game's LiveArea (game/<the game>/app/<title ID>/sce_sys/livearea), when
     python scripts/android_apk.py --install
 """
 
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
+PSVRECORE = Path(os.environ.get("PSVRECORE_ROOT") or ROOT.parent / "psvrecore")  # (psvrecore's standalone checkout)
 TITLE_ID = "PCSB00867"
 
 
@@ -36,7 +38,7 @@ def icon_picture():
 
 if __name__ == "__main__":
     preset = "android-arm64-release"
-    cmd = [sys.executable, str(ROOT / "psvrecore" / "scripts" / "android_apk.py"),
+    cmd = [sys.executable, str(PSVRECORE / "scripts" / "android_apk.py"),
            "--manifest", str(ROOT / "android" / "AndroidManifest.xml"),
            "--lib", str(ROOT / "build" / preset / "libmain.so"),
            "--out", str(ROOT / "build" / preset / "p4danrecomp.apk")]
@@ -48,7 +50,7 @@ if __name__ == "__main__":
         print("icon: no game/icon.png, nor the game's icon0.png under game/: a placeholder")
     game = game_folder()
     # (a psvrecore checkout from before the launch screen does without it)
-    supported = "--launch" in (ROOT / "psvrecore" / "scripts" / "android_apk.py").read_text(encoding="utf-8")
+    supported = "--launch" in (PSVRECORE / "scripts" / "android_apk.py").read_text(encoding="utf-8")
     if game and supported and "--launch" not in sys.argv and "--no-launch" not in sys.argv:
         cmd += ["--launch", str(game)]
     sys.exit(subprocess.run(cmd + sys.argv[1:]).returncode)

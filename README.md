@@ -3,8 +3,9 @@
 A native port of *Persona 4: Dancing All Night* (PS Vita) to Windows, Linux and Android. It works by static
 recompilation:
 - the game's executable code is translated ahead of time into C and compiled with Clang;
-- it runs on [psvrecore](https://github.com/AdamFull/psvrecore), a reusable PS Vita recompilation toolkit, included
-  here as a git submodule.
+- it runs on [psvrecore](https://github.com/AdamFull/psvrecore), a reusable PS Vita recompilation toolkit,
+  kept in its own checkout beside this repository (`../psvrecore`, or `PSVRECORE_ROOT`) and installed once per preset; the game
+  builds against that package. `psvrecore.version` is the psvrecore commit the game was last checked with.
 
 This repository holds only what is specific to the game: its configuration, integration, patches, fixes and
 settings.
@@ -19,7 +20,6 @@ Status: early setup. Nothing runs yet. See [docs/STATUS.md](docs/STATUS.md).
 
 | Folder | Contents |
 | --- | --- |
-| `psvrecore` | The toolkit (submodule) |
 | `game` | Your original game packages (git-ignored, never modified) |
 | `keys` | Licenses and keys you supply (git-ignored) |
 | `generated` | Extracted, recompiled and translated output (git-ignored) |
@@ -29,7 +29,8 @@ Status: early setup. Nothing runs yet. See [docs/STATUS.md](docs/STATUS.md).
 ## Building
 
 ```
-git submodule update --init --recursive
+git clone --recursive https://github.com/AdamFull/psvrecore ..\psvrecore   # once, beside this repository
+..\psvrecore\scripts\build.ps1 -Preset windows-x64-debug -NoTest -Install  # once per preset, and after it changes
 scripts\build.ps1
 ```
 
@@ -52,7 +53,7 @@ image until the game's first frame, which it fades into (`[display] launch_scree
 the system's splash screen is in its colour, and `scripts/android_apk.py` (the deploy script's) adds it too.
 
 What is made from `sce_sys` goes to `generated/package/`; nothing made from the game is committed. Details:
-psvrecore's [docs/BUILDING.md](psvrecore/docs/BUILDING.md), "Packaging a game".
+psvrecore's [docs/BUILDING.md](https://github.com/AdamFull/psvrecore/blob/master/docs/BUILDING.md), "Packaging a game".
 
 ## License
 
